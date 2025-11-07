@@ -191,11 +191,11 @@ pascal_sbd_dataset = dataset_base.copy({
 my_custom_dataset = dataset_base.copy({
     'name': 'My Custom Dataset',
 
-    'train_images': 'panoptic-indoor-segmentation-5/train',
-    'train_info': 'panoptic-indoor-segmentation-5/train/_annotations.coco.json',
+    'train_images': './panoptic-indoor-segmentation-5/train',
+    'train_info': './panoptic-indoor-segmentation-5/train/_annotations.coco.json',
 
-    'valid_images': 'panoptic-indoor-segmentation-5/valid',
-    'valid_info': 'panoptic-indoor-segmentation-5/test/_annotations.coco.json',
+    'valid_images': './panoptic-indoor-segmentation-5/valid',
+    'valid_info': './panoptic-indoor-segmentation-5/valid/_annotations.coco.json',
 
     'class_names': class_names,
 })

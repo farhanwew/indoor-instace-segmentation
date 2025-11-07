@@ -246,9 +246,12 @@ def train():
     # Which learning rate adjustment step are we on? lr' = lr * gamma ^ step_index
     step_index = 0
 
+    # Use SequentialSampler to avoid CUDA generator issues with shuffling
+    # Note: This avoids the random sampler CUDA generator issue while maintaining training
+    sampler = torch.utils.data.SequentialSampler(dataset)
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
-                                  shuffle=True, collate_fn=detection_collate,
+                                  sampler=sampler, collate_fn=detection_collate,
                                   pin_memory=True)
     
     
