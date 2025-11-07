@@ -105,6 +105,22 @@ class Config(object):
 
 # ----------------------- DATASETS ----------------------- #
 
+
+class_names = ('backpack', 'bed', 'blanket', 'book', 'bottle', 
+         'bowl', 'box', 'cabinet-merged', 'cardboard', 'ceiling-merged', 
+         'cell phone', 'chair', 'clock', 'couch', 'counter', 'cup', 'curtain', 
+         'dining table', 'door-stuff', 'fire-extinguisher', 'floor-other-merged', 
+         'floor-wood', 'flower', 'food-other-merged', 'fork', 'hair drier', 
+         'handbag', 'keyboard', 'knife', 'laptop', 'light', 'microwave',
+         'mirror-stuff', 'mouse', 'oven', 'pan', 'paper', 'paper-merged', 
+         'person', 'pillow', 'plate', 'plug', 'potted plant', 'refrigerator', 
+         'remote', 'rug-merged', 'scissor', 'scissors', 'shelf', 'sink', 'spoon',
+         'st-', 'stairs', 'stove-merged', 'table-merged', 'teddy bear', 'toaster', 
+         'toilet', 'toothbrush', 'towel', 'toy', 'trash-bin', 'tree-merged', 'tv', 
+         'vase', 'wall', 'wall-brick', 'wall-other-merged', 'wall-stone', 'wall-tile',
+         'wall-wood', 'wallet', 'window-blind', 'window-other')
+
+
 dataset_base = Config({
     'name': 'Base Dataset',
 
@@ -175,15 +191,14 @@ pascal_sbd_dataset = dataset_base.copy({
 my_custom_dataset = dataset_base.copy({
     'name': 'My Custom Dataset',
 
-    'train_images': '/path/to/your/dataset/images/',
-    'train_info': '/path/to/your/dataset/annotations.json',
+    'train_images': 'panoptic-indoor-segmentation-5/train',
+    'train_info': 'panoptic-indoor-segmentation-5/train/_annotations.coco.json',
 
-    'valid_images': '/path/to/your/dataset/images/',
-    'valid_info': '/path/to/your/dataset/annotations.json',
+    'valid_images': 'panoptic-indoor-segmentation-5/valid',
+    'valid_info': 'panoptic-indoor-segmentation-5/test/_annotations.coco.json',
 
-    'class_names': ('my_class_1', 'my_class_2', 'my_class_3'),
+    'class_names': class_names,
 })
-
 
 
 
