@@ -172,6 +172,19 @@ pascal_sbd_dataset = dataset_base.copy({
     'class_names': PASCAL_CLASSES,
 })
 
+my_custom_dataset = dataset_base.copy({
+    'name': 'My Custom Dataset',
+
+    'train_images': '/path/to/your/dataset/images/',
+    'train_info': '/path/to/your/dataset/annotations.json',
+
+    'valid_images': '/path/to/your/dataset/images/',
+    'valid_info': '/path/to/your/dataset/annotations.json',
+
+    'class_names': ('my_class_1', 'my_class_2', 'my_class_3'),
+})
+
+
 
 
 
@@ -766,6 +779,19 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
         'use_square_anchors': False,
     })
 })
+
+yolact_custom_config = yolact_base_config.copy({
+    'name': 'yolact_custom',
+
+    # Dataset stuff
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+
+    # You can overwrite other parameters here, like learning rate, number of iterations, etc.
+    # 'lr': 1e-4,
+    # 'max_iter': 100000,
+})
+
 
 # ----------------------- YOLACT++ CONFIGS ----------------------- #
 
