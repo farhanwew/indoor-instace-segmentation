@@ -821,8 +821,7 @@ yolact_custom_50_epochs = create_epoch_config(
     num_epochs=50,
     batch_size=4,
     dataset_size=1000  # Adjust this to your actual dataset size
-)
-yolact_custom_50_epochs.update({
+).copy({
     'name': 'yolact_custom_50_epochs',
     'dataset': my_custom_dataset,
     'num_classes': len(my_custom_dataset.class_names) + 1,
@@ -840,8 +839,7 @@ yolact_custom_100_epochs = create_epoch_config(
     num_epochs=100,
     batch_size=4,
     dataset_size=1000
-)
-yolact_custom_100_epochs.update({
+).copy({
     'name': 'yolact_custom_100_epochs',
     'dataset': my_custom_dataset,
     'num_classes': len(my_custom_dataset.class_names) + 1,
@@ -859,8 +857,7 @@ yolact_custom_200_epochs = create_epoch_config(
     num_epochs=200,
     batch_size=4,
     dataset_size=1000
-)
-yolact_custom_200_epochs.update({
+).copy({
     'name': 'yolact_custom_200_epochs',
     'dataset': my_custom_dataset,
     'num_classes': len(my_custom_dataset.class_names) + 1,
@@ -872,6 +869,91 @@ yolact_custom_200_epochs.update({
     'eval_mask_branch': True,
 })
 
+# === TRANSFER LEARNING CONFIGURATIONS ===
+# Resume from COCO-trained models following README examples
+
+# Transfer from YOLACT Base (COCO) to Custom Indoor Dataset
+yolact_custom_from_base = yolact_base_config.copy({
+    'name': 'yolact_custom_from_base',
+
+    # Override dataset for custom training
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+
+    # Fine-tuning parameters (lower LR, fewer iterations)
+    'lr': 1e-4,                    # Start with same LR as original
+    'max_iter': 50000,             # Custom training length
+    'lr_steps': (30000, 40000, 45000),  # Custom LR schedule
+
+    # Keep all mask settings from base config
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'masks_to_train': 100,
+    'mask_proto_mask_activation': activation_func.sigmoid,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+
+    # Custom dataset thresholds
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.4,  # Use base config value
+})
+
+# Transfer from YOLACT IM700 (COCO) to Custom Indoor Dataset
+yolact_custom_from_im700 = yolact_im700_config.copy({
+    'name': 'yolact_custom_from_im700',
+
+    # Override dataset for custom training
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+
+    # Fine-tuning parameters
+    'lr': 1e-4,
+    'max_iter': 40000,             # Slightly fewer due to larger images
+    'lr_steps': (25000, 32000, 36000),
+
+    # Keep IM700 mask settings
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'masks_to_train': 300,         # IM700 uses more masks
+    'mask_proto_src': 0,
+    'mask_proto_mask_activation': activation_func.sigmoid,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+
+    # Custom dataset thresholds
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.4,
+})
+
+# Transfer from YOLACT ResNet50 (COCO) to Custom Indoor Dataset
+yolact_custom_from_resnet50 = yolact_resnet50_config.copy({
+    'name': 'yolact_custom_from_resnet50',
+
+    # Override dataset for custom training
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+
+    # Fine-tuning parameters
+    'lr': 1e-4,
+    'max_iter': 40000,
+    'lr_steps': (25000, 32000, 36000),
+
+    # Keep ResNet50 mask settings
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'masks_to_train': 100,
+    'mask_proto_mask_activation': activation_func.sigmoid,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+
+    # Custom dataset thresholds
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.4,
+})
+
+# Original custom config (train from scratch)
 yolact_custom_config = yolact_base_config.copy({
     'name': 'yolact_custom',
 
@@ -881,8 +963,8 @@ yolact_custom_config = yolact_base_config.copy({
 
     # Training parameters optimized for custom dataset
     'lr': 1e-4,
-    'max_iter': 50000,
-    'lr_steps': (30000, 40000, 45000),
+    'max_iter': 80000,             # More iterations when training from scratch
+    'lr_steps': (50000, 65000, 75000),
 
     # 🔥 CRITICAL: Mask training settings
     'train_masks': True,                    # Pastikan mask training aktif
