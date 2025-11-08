@@ -795,6 +795,83 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
     })
 })
 
+def create_epoch_config(base_config, num_epochs, batch_size=4, dataset_size=1000):
+    """
+    Helper function to create config with specific number of epochs
+    """
+    iterations_per_epoch = dataset_size // batch_size
+    total_iterations = num_epochs * iterations_per_epoch
+
+    # Calculate LR steps (e.g., at 70%, 85%, 95% of training)
+    lr_step1 = int(total_iterations * 0.7)
+    lr_step2 = int(total_iterations * 0.85)
+    lr_step3 = int(total_iterations * 0.95)
+
+    return base_config.copy({
+        'max_iter': total_iterations,
+        'lr_steps': (lr_step1, lr_step2, lr_step3),
+        'batch_size': batch_size,
+    })
+
+# === EPOCH-BASED TRAINING CONFIGURATIONS ===
+
+# For 50 epochs (quick training)
+yolact_custom_50_epochs = create_epoch_config(
+    yolact_base_config,
+    num_epochs=50,
+    batch_size=4,
+    dataset_size=1000  # Adjust this to your actual dataset size
+)
+yolact_custom_50_epochs.update({
+    'name': 'yolact_custom_50_epochs',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+    'lr': 1e-4,
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+})
+
+# For 100 epochs (standard training)
+yolact_custom_100_epochs = create_epoch_config(
+    yolact_base_config,
+    num_epochs=100,
+    batch_size=4,
+    dataset_size=1000
+)
+yolact_custom_100_epochs.update({
+    'name': 'yolact_custom_100_epochs',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+    'lr': 1e-4,
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+})
+
+# For 200 epochs (full training)
+yolact_custom_200_epochs = create_epoch_config(
+    yolact_base_config,
+    num_epochs=200,
+    batch_size=4,
+    dataset_size=1000
+)
+yolact_custom_200_epochs.update({
+    'name': 'yolact_custom_200_epochs',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+    'lr': 1e-4,
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+})
+
 yolact_custom_config = yolact_base_config.copy({
     'name': 'yolact_custom',
 
@@ -802,9 +879,27 @@ yolact_custom_config = yolact_base_config.copy({
     'dataset': my_custom_dataset,
     'num_classes': len(my_custom_dataset.class_names) + 1,
 
-    # You can overwrite other parameters here, like learning rate, number of iterations, etc.
-    # 'lr': 1e-4,
-    # 'max_iter': 100000,
+    # Training parameters optimized for custom dataset
+    'lr': 1e-4,
+    'max_iter': 50000,
+    'lr_steps': (30000, 40000, 45000),
+
+    # 🔥 CRITICAL: Mask training settings
+    'train_masks': True,                    # Pastikan mask training aktif
+    'mask_alpha': 6.125,                    # Weight untuk mask loss
+    'mask_proto_src': 0,                    # Source untuk mask prototypes
+    'masks_to_train': 100,                  # Jumlah masks untuk training per iterasi
+    'mask_proto_mask_activation': activation_func.sigmoid,  # Activasi untuk mask output
+
+    # 🔥 CRITICAL: Pastikan mask type benar
+    'mask_type': mask_type.lincomb,         # Linear combination mask generation
+
+    # Thresholds untuk custom dataset
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.3,
+
+    # Evaluation settings
+    'eval_mask_branch': True,               # Enable mask evaluation
 })
 
 
