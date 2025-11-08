@@ -872,13 +872,13 @@ yolact_custom_200_epochs = create_epoch_config(
 # === TRANSFER LEARNING CONFIGURATIONS ===
 # Resume from COCO-trained models following README examples
 
-# Transfer from YOLACT Base (COCO) to Custom Indoor Dataset
+# Transfer from YOLACT Base (COCO) to Custom Indoor Dataset - BACKBONE ONLY
 yolact_custom_from_base = yolact_base_config.copy({
     'name': 'yolact_custom_from_base',
 
     # Override dataset for custom training
     'dataset': my_custom_dataset,
-    'num_classes': len(my_custom_dataset.class_names) + 1,
+    'num_classes': len(my_custom_dataset.class_names) + 1,  # 74 + 1 = 75
 
     # Fine-tuning parameters (lower LR, fewer iterations)
     'lr': 1e-4,                    # Start with same LR as original
@@ -951,6 +951,73 @@ yolact_custom_from_resnet50 = yolact_resnet50_config.copy({
     # Custom dataset thresholds
     'positive_iou_threshold': 0.5,
     'negative_iou_threshold': 0.4,
+})
+
+# === SAFE TRANSFER LEARNING CONFIGURATIONS ===
+# These use ImageNet pre-trained backbones only (no class count issues)
+
+# Safe Transfer: ImageNet Backbone + Custom Training
+yolact_custom_safe = yolact_base_config.copy({
+    'name': 'yolact_custom_safe',
+
+    # Dataset stuff
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,  # 74 + 1 = 75
+
+    # Training parameters
+    'lr': 1e-4,
+    'max_iter': 60000,             # Moderate iterations
+    'lr_steps': (40000, 50000, 55000),
+
+    # Use standard ImageNet pre-trained backbone
+    'backbone': resnet101_backbone.copy({
+        'path': 'resnet101_reducedfc.pth',  # ImageNet weights only
+    }),
+
+    # 🔥 CRITICAL: Mask training settings
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'masks_to_train': 100,
+    'mask_proto_mask_activation': activation_func.sigmoid,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+
+    # Thresholds untuk custom dataset
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.3,
+})
+
+# Fast Transfer: ResNet50 Backbone (Faster Training)
+yolact_custom_fast = yolact_resnet50_config.copy({
+    'name': 'yolact_custom_fast',
+
+    # Override dataset for custom training
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,  # 74 + 1 = 75
+
+    # Training parameters (faster convergence)
+    'lr': 1e-4,
+    'max_iter': 40000,
+    'lr_steps': (25000, 32000, 36000),
+
+    # Use ImageNet pre-trained ResNet50 backbone
+    'backbone': resnet50_backbone.copy({
+        'path': 'resnet50-19c8e357.pth',  # ImageNet weights only
+    }),
+
+    # Mask training settings
+    'train_masks': True,
+    'mask_alpha': 6.125,
+    'mask_proto_src': 0,
+    'masks_to_train': 100,
+    'mask_proto_mask_activation': activation_func.sigmoid,
+    'mask_type': mask_type.lincomb,
+    'eval_mask_branch': True,
+
+    # Custom dataset thresholds
+    'positive_iou_threshold': 0.5,
+    'negative_iou_threshold': 0.3,
 })
 
 # Original custom config (train from scratch)
