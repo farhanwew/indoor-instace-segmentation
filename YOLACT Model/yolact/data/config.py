@@ -969,9 +969,15 @@ yolact_custom_safe = yolact_base_config.copy({
     'max_iter': 60000,             # Moderate iterations
     'lr_steps': (40000, 50000, 55000),
 
-    # Use standard ImageNet pre-trained backbone
+    # Use properly configured ImageNet pre-trained backbone
     'backbone': resnet101_backbone.copy({
         'path': 'resnet101_reducedfc.pth',  # ImageNet weights only
+        'selected_layers': list(range(1, 4)),  # Use layers 1, 2, 3
+        'use_pixel_scales': True,
+        'preapply_sqrt': False,
+        'use_square_anchors': True,
+        'pred_aspect_ratios': [ [[1, 1/2, 2]] ] * 5,  # 5 sets for 5 layers
+        'pred_scales': [[24], [48], [96], [192], [384]],  # 5 scales for 5 layers
     }),
 
     # 🔥 CRITICAL: Mask training settings
@@ -1001,9 +1007,15 @@ yolact_custom_fast = yolact_resnet50_config.copy({
     'max_iter': 40000,
     'lr_steps': (25000, 32000, 36000),
 
-    # Use ImageNet pre-trained ResNet50 backbone
+    # Use properly configured ImageNet pre-trained ResNet50 backbone
     'backbone': resnet50_backbone.copy({
         'path': 'resnet50-19c8e357.pth',  # ImageNet weights only
+        'selected_layers': list(range(1, 4)),  # Use layers 1, 2, 3
+        'use_pixel_scales': True,
+        'preapply_sqrt': False,
+        'use_square_anchors': True,
+        'pred_aspect_ratios': [ [[1, 1/2, 2]] ] * 5,  # 5 sets for 5 layers
+        'pred_scales': [[24], [48], [96], [192], [384]],  # 5 scales for 5 layers
     }),
 
     # Mask training settings
