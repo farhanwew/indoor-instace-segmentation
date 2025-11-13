@@ -8,7 +8,7 @@ from yolact import Yolact
 import os
 import sys
 import time
-import math, random
+import math, random, random
 from pathlib import Path
 import torch
 from torch.autograd import Variable
@@ -122,6 +122,8 @@ loss_types = ['B', 'C', 'M', 'P', 'D', 'E', 'S', 'I']
 if torch.cuda.is_available():
     if args.cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
+        # Fix for RuntimeError: Expected a 'cuda' device type for generator but found 'cpu'
+        torch.cuda.manual_seed_all(random.randint(1, 10000))
     if not args.cuda:
         print("WARNING: It looks like you have a CUDA device, but aren't " +
               "using CUDA.\nRun with --cuda for optimal training speed.")
