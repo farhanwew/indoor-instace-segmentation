@@ -815,11 +815,36 @@ yolact_plus_resnet50_config = yolact_plus_base_config.copy({
     }),
 })
 
-yolact_panoptic_indoor_config = yolact_base_config.copy({
-    'name': 'yolact_panoptic_indoor',
+yolact_resnet101_panoptic_indoor_config = yolact_base_config.copy({
+    'name': 'yolact_resnet101_panoptic_indoor',
     'dataset': my_custom_dataset,
     'num_classes': len(my_custom_dataset.class_names) + 1,
 })
+
+yolact_resnet50_panoptic_indoor_config = yolact_resnet50_config.copy({
+    'name': 'yolact_resnet50_panoptic_indoor',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+})
+
+yolact_darknet53_panoptic_indoor_config = yolact_darknet53_config.copy({
+    'name': 'yolact_darknet53_panoptic_indoor',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+})
+
+yolact_plus_resnet50_panoptic_indoor_config = yolact_plus_resnet50_config.copy({
+    'name': 'yolact_plus_resnet50_panoptic_indoor',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+})
+
+yolact_plus_resnet101_panoptic_indoor_config = yolact_plus_base_config.copy({
+    'name': 'yolact_plus_resnet101_panoptic_indoor',
+    'dataset': my_custom_dataset,
+    'num_classes': len(my_custom_dataset.class_names) + 1,
+})
+
 
 
 # Default config

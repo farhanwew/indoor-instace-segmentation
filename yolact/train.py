@@ -40,6 +40,8 @@ parser.add_argument('--start_iter', default=-1, type=int,
                          'determined from the file name.')
 parser.add_argument('--num_workers', default=4, type=int,
                     help='Number of workers used in dataloading')
+parser.add_argument('--num_epochs', default=0, type=int,
+                    help='Number of epochs to train for. If 0, use max_iter.')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use CUDA to train model')
 parser.add_argument('--lr', '--learning_rate', default=None, type=float,
@@ -241,6 +243,8 @@ def train():
     last_time = time.time()
 
     epoch_size = len(dataset) // args.batch_size
+    if args.num_epochs > 0:
+        cfg.max_iter = args.num_epochs * epoch_size
     num_epochs = math.ceil(cfg.max_iter / epoch_size)
     
     # Which learning rate adjustment step are we on? lr' = lr * gamma ^ step_index
