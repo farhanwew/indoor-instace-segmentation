@@ -8,7 +8,7 @@ from yolact import Yolact
 import os
 import sys
 import time
-import math, random, random
+import math, random
 from pathlib import Path
 import torch
 from torch.autograd import Variable
@@ -122,8 +122,6 @@ loss_types = ['B', 'C', 'M', 'P', 'D', 'E', 'S', 'I']
 if torch.cuda.is_available():
     if args.cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        # Fix for RuntimeError: Expected a 'cuda' device type for generator but found 'cpu'
-        torch.cuda.manual_seed_all(random.randint(1, 10000))
     if not args.cuda:
         print("WARNING: It looks like you have a CUDA device, but aren't " +
               "using CUDA.\nRun with --cuda for optimal training speed.")
@@ -248,10 +246,16 @@ def train():
     # Which learning rate adjustment step are we on? lr' = lr * gamma ^ step_index
     step_index = 0
 
+    # Create a generator for the DataLoader to fix the RuntimeError
+    if args.cuda:
+        generator = torch.Generator(device='cuda')
+    else:
+        generator = torch.Generator(device='cpu')
+
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
                                   shuffle=True, collate_fn=detection_collate,
-                                  pin_memory=True)
+                                  pin_memory=True, generator=generator)
     
     
     save_path = lambda epoch, iteration: SavePath(cfg.name, epoch, iteration).get_path(root=args.save_folder)
