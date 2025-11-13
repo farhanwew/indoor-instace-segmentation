@@ -3,7 +3,8 @@ from torchvision import transforms
 import cv2
 import numpy as np
 import types
-from numpy import random
+from numpy import random as np_random
+import random as pyrandom
 from math import sqrt
 
 from data import cfg, MEANS, STD
@@ -188,8 +189,8 @@ class RandomSaturation(object):
         assert self.lower >= 0, "contrast lower must be non-negative."
 
     def __call__(self, image, masks=None, boxes=None, labels=None):
-        if random.randint(2):
-            image[:, :, 1] *= random.uniform(self.lower, self.upper)
+        if np_random.randint(2):
+            image[:, :, 1] *= np_random.uniform(self.lower, self.upper)
 
         return image, masks, boxes, labels
 
@@ -200,8 +201,8 @@ class RandomHue(object):
         self.delta = delta
 
     def __call__(self, image, masks=None, boxes=None, labels=None):
-        if random.randint(2):
-            image[:, :, 0] += random.uniform(-self.delta, self.delta)
+        if np_random.randint(2):
+            image[:, :, 0] += np_random.uniform(-self.delta, self.delta)
             image[:, :, 0][image[:, :, 0] > 360.0] -= 360.0
             image[:, :, 0][image[:, :, 0] < 0.0] += 360.0
         return image, masks, boxes, labels
@@ -216,8 +217,8 @@ class RandomLightingNoise(object):
     def __call__(self, image, masks=None, boxes=None, labels=None):
         # Don't shuffle the channels please, why would you do this
 
-        # if random.randint(2):
-        #     swap = self.perms[random.randint(len(self.perms))]
+        # if np_random.randint(2):
+        #     swap = self.perms[np_random.randint(len(self.perms))]
         #     shuffle = SwapChannels(swap)  # shuffle channels
         #     image = shuffle(image)
         return image, masks, boxes, labels
@@ -247,8 +248,8 @@ class RandomContrast(object):
 
     # expects float image
     def __call__(self, image, masks=None, boxes=None, labels=None):
-        if random.randint(2):
-            alpha = random.uniform(self.lower, self.upper)
+        if np_random.randint(2):
+            alpha = np_random.uniform(self.lower, self.upper)
             image *= alpha
         return image, masks, boxes, labels
 
@@ -260,8 +261,8 @@ class RandomBrightness(object):
         self.delta = delta
 
     def __call__(self, image, masks=None, boxes=None, labels=None):
-        if random.randint(2):
-            delta = random.uniform(-self.delta, self.delta)
+        if np_random.randint(2):
+            delta = np_random.uniform(-self.delta, self.delta)
             image += delta
         return image, masks, boxes, labels
 
@@ -306,7 +307,7 @@ class RandomSampleCrop(object):
         height, width, _ = image.shape
         while True:
             # randomly choose a mode
-            mode = random.choice(self.sample_options)
+            mode = pyrandom.choice(self.sample_options)
             if mode is None:
                 return image, masks, boxes, labels
 
@@ -320,15 +321,15 @@ class RandomSampleCrop(object):
             for _ in range(50):
                 current_image = image
 
-                w = random.uniform(0.3 * width, width)
-                h = random.uniform(0.3 * height, height)
+                w = np_random.uniform(0.3 * width, width)
+                h = np_random.uniform(0.3 * height, height)
 
                 # aspect ratio constraint b/t .5 & 2
                 if h / w < 0.5 or h / w > 2:
                     continue
 
-                left = random.uniform(width - w)
-                top = random.uniform(height - h)
+                left = np_random.uniform(width - w)
+                top = np_random.uniform(height - h)
 
                 # convert to integer rect x1,y1,x2,y2
                 rect = np.array([int(left), int(top), int(left+w), int(top+h)])
@@ -410,13 +411,13 @@ class Expand(object):
         self.mean = mean
 
     def __call__(self, image, masks, boxes, labels):
-        if random.randint(2):
+        if np_random.randint(2):
             return image, masks, boxes, labels
 
         height, width, depth = image.shape
-        ratio = random.uniform(1, 4)
-        left = random.uniform(0, width*ratio - width)
-        top = random.uniform(0, height*ratio - height)
+        ratio = np_random.uniform(1, 4)
+        left = np_random.uniform(0, width*ratio - width)
+        top = np_random.uniform(0, height*ratio - height)
 
         expand_image = np.zeros(
             (int(height*ratio), int(width*ratio), depth),
@@ -443,7 +444,7 @@ class Expand(object):
 class RandomMirror(object):
     def __call__(self, image, masks, boxes, labels):
         _, width, _ = image.shape
-        if random.randint(2):
+        if np_random.randint(2):
             image = image[:, ::-1]
             masks = masks[:, :, ::-1]
             boxes = boxes.copy()
@@ -454,7 +455,7 @@ class RandomMirror(object):
 class RandomFlip(object):
     def __call__(self, image, masks, boxes, labels):
         height , _ , _ = image.shape
-        if random.randint(2):
+        if np_random.randint(2):
             image = image[::-1, :]
             masks = masks[:, ::-1, :]
             boxes = boxes.copy()
@@ -465,7 +466,7 @@ class RandomFlip(object):
 class RandomRot90(object):
     def __call__(self, image, masks, boxes, labels):
         old_height , old_width , _ = image.shape
-        k = random.randint(4)
+        k = np_random.randint(4)
         image = np.rot90(image,k)
         masks = np.array([np.rot90(mask,k) for mask in masks])
         boxes = boxes.copy()
@@ -517,7 +518,7 @@ class PhotometricDistort(object):
     def __call__(self, image, masks, boxes, labels):
         im = image.copy()
         im, masks, boxes, labels = self.rand_brightness(im, masks, boxes, labels)
-        if random.randint(2):
+        if np_random.randint(2):
             distort = Compose(self.pd[:-1])
         else:
             distort = Compose(self.pd[1:])
