@@ -487,6 +487,15 @@ class Yolact(nn.Module):
             if key.startswith('fpn.downsample_layers.'):
                 if cfg.fpn is not None and int(key.split('.')[2]) >= cfg.fpn.num_downsample:
                     del state_dict[key]
+        
+        # Transfer learning + finetuning
+        # Head layers have different number of classes
+        # So we have to remove them from state_dict
+        for key in list(state_dict.keys()):
+            if self.state_dict()[key].shape != state_dict[key].shape:
+                print('Removing %s from state_dict...' % key)
+                del state_dict[key]
+
         self.load_state_dict(state_dict, strict=False)
 
     def init_weights(self, backbone_path):
